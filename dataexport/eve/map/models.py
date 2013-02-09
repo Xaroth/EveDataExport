@@ -84,14 +84,14 @@ class Maplandmarks(models.Model):
     y = models.FloatField(null=True, blank=True)
     z = models.FloatField(null=True, blank=True)
     radius = models.FloatField(null=True, blank=True)
-    iconid = models.IntegerField(null=True, db_column='iconID', blank=True) # Field name made lowercase.
+    icon = models.ForeignKey("eve.Icon", null=True, db_column='iconID', blank=True)
     importance = models.IntegerField(null=True, blank=True)
     class Meta:
         db_table = u'mapLandmarks'
 
 class Maplocationscenes(models.Model):
     locationid = models.IntegerField(primary_key=True, db_column='locationID') # Field name made lowercase.
-    graphicid = models.IntegerField(null=True, db_column='graphicID', blank=True) # Field name made lowercase.
+    graphic = models.ForeignKey("eve.Graphic", null=True, db_column='graphicID', blank=True)
     class Meta:
         db_table = u'mapLocationScenes'
 

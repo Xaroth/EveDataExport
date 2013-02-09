@@ -11,7 +11,7 @@ class Dgmattributetypes(models.Model):
     attributeid = models.IntegerField(primary_key=True, db_column='attributeID') # Field name made lowercase.
     attributename = models.CharField(max_length=300, db_column='attributeName', blank=True) # Field name made lowercase.
     description = models.CharField(max_length=3000, blank=True)
-    iconid = models.IntegerField(null=True, db_column='iconID', blank=True) # Field name made lowercase.
+    icon = models.ForeignKey("eve.Icon", null=True, db_column='iconID', blank=True)
     defaultvalue = models.FloatField(null=True, db_column='defaultValue', blank=True) # Field name made lowercase.
     published = models.IntegerField(null=True, blank=True)
     displayname = models.CharField(max_length=300, db_column='displayName', blank=True) # Field name made lowercase.
@@ -30,7 +30,7 @@ class Dgmeffects(models.Model):
     postexpression = models.IntegerField(null=True, db_column='postExpression', blank=True) # Field name made lowercase.
     description = models.CharField(max_length=3000, blank=True)
     guid = models.CharField(max_length=180, blank=True)
-    iconid = models.IntegerField(null=True, db_column='iconID', blank=True) # Field name made lowercase.
+    icon = models.ForeignKey("eve.Icon", null=True, db_column='iconID', blank=True)
     isoffensive = models.IntegerField(null=True, db_column='isOffensive', blank=True) # Field name made lowercase.
     isassistance = models.IntegerField(null=True, db_column='isAssistance', blank=True) # Field name made lowercase.
     durationattributeid = models.IntegerField(null=True, db_column='durationAttributeID', blank=True) # Field name made lowercase.

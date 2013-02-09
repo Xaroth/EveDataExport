@@ -13,7 +13,7 @@ class Crtcertificates(models.Model):
     classid = models.IntegerField(null=True, db_column='classID', blank=True) # Field name made lowercase.
     grade = models.IntegerField(null=True, blank=True)
     corpid = models.IntegerField(null=True, db_column='corpID', blank=True) # Field name made lowercase.
-    iconid = models.IntegerField(null=True, db_column='iconID', blank=True) # Field name made lowercase.
+    icon = models.ForeignKey("eve.Icon", null=True, db_column='iconID', blank=True)
     description = models.CharField(max_length=1500, blank=True)
     class Meta:
         db_table = u'crtCertificates'

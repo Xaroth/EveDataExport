@@ -1,23 +1,23 @@
 from django.db import models
 
 class Graphic(models.Model):
-    id                  = models.IntegerField(primary_key=True, db_column='graphicID') # Field name made lowercase.
-    filename            = models.CharField(max_length=1500, db_column='graphicFile') # Field name made lowercase.
+    id                  = models.AutoField(primary_key=True, db_column='graphicID')
+    filename            = models.CharField(max_length=1500, db_column='graphicFile')
     description         = models.TextField()
     obsolete            = models.IntegerField()
-    graphictype         = models.CharField(max_length=300, db_column='graphicType', blank=True) # Field name made lowercase.
+    graphictype         = models.CharField(max_length=300, db_column='graphicType', blank=True)
     collidable          = models.IntegerField(null=True, blank=True)
-    explosionid         = models.IntegerField(null=True, db_column='explosionID', blank=True) # Field name made lowercase.
-    directoryid         = models.IntegerField(null=True, db_column='directoryID', blank=True) # Field name made lowercase.
-    graphicname         = models.CharField(max_length=192, db_column='graphicName') # Field name made lowercase.
+    explosionid         = models.IntegerField(null=True, db_column='explosionID', blank=True)
+    directoryid         = models.IntegerField(null=True, db_column='directoryID', blank=True)
+    graphicname         = models.CharField(max_length=192, db_column='graphicName')
 
     class Meta:
         db_table        = u'eveGraphics'
         ordering        = ('id',)
 
 class Icon(models.Model):
-    id                  = models.IntegerField(primary_key=True, db_column='iconID') # Field name made lowercase.
-    filename            = models.CharField(max_length=1500, db_column='iconFile') # Field name made lowercase.
+    id                  = models.AutoField(primary_key=True, db_column='iconID')
+    filename            = models.CharField(max_length=1500, db_column='iconFile')
     description         = models.TextField()
 
     class Meta:
@@ -25,9 +25,9 @@ class Icon(models.Model):
         ordering        = ('id',)
 
 class Unit(models.Model):
-    id                  = models.IntegerField(primary_key=True, db_column='unitID') # Field name made lowercase.
-    name                = models.CharField(max_length=300, db_column='unitName', blank=True) # Field name made lowercase.
-    displayname         = models.CharField(max_length=150, db_column='displayName', blank=True) # Field name made lowercase.
+    id                  = models.AutoField(primary_key=True, db_column='unitID')
+    name                = models.CharField(max_length=300, db_column='unitName', blank=True)
+    displayname         = models.CharField(max_length=150, db_column='displayName', blank=True)
     description         = models.CharField(max_length=3000, blank=True)
 
     class Meta:

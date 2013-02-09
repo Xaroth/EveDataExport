@@ -10,7 +10,7 @@ class Chrancestries(models.Model):
     charisma = models.IntegerField(null=True, blank=True)
     memory = models.IntegerField(null=True, blank=True)
     intelligence = models.IntegerField(null=True, blank=True)
-    iconid = models.IntegerField(null=True, db_column='iconID', blank=True) # Field name made lowercase.
+    icon = models.ForeignKey("eve.Icon", null=True, db_column='iconID', blank=True)
     shortdescription = models.CharField(max_length=1500, db_column='shortDescription', blank=True) # Field name made lowercase.
     class Meta:
         db_table = u'chrAncestries'
@@ -19,7 +19,7 @@ class Chrattributes(models.Model):
     attributeid = models.IntegerField(primary_key=True, db_column='attributeID') # Field name made lowercase.
     attributename = models.CharField(max_length=300, db_column='attributeName', blank=True) # Field name made lowercase.
     description = models.CharField(max_length=3000, blank=True)
-    iconid = models.IntegerField(null=True, db_column='iconID', blank=True) # Field name made lowercase.
+    icon = models.ForeignKey("eve.Icon", null=True, db_column='iconID', blank=True)
     shortdescription = models.CharField(max_length=1500, db_column='shortDescription', blank=True) # Field name made lowercase.
     notes = models.CharField(max_length=1500, blank=True)
     class Meta:
@@ -39,7 +39,7 @@ class Chrbloodlines(models.Model):
     charisma = models.IntegerField(null=True, blank=True)
     memory = models.IntegerField(null=True, blank=True)
     intelligence = models.IntegerField(null=True, blank=True)
-    iconid = models.IntegerField(null=True, db_column='iconID', blank=True) # Field name made lowercase.
+    icon = models.ForeignKey("eve.Icon", null=True, db_column='iconID', blank=True)
     shortdescription = models.CharField(max_length=1500, db_column='shortDescription', blank=True) # Field name made lowercase.
     shortmaledescription = models.CharField(max_length=1500, db_column='shortMaleDescription', blank=True) # Field name made lowercase.
     shortfemaledescription = models.CharField(max_length=1500, db_column='shortFemaleDescription', blank=True) # Field name made lowercase.
@@ -57,7 +57,7 @@ class Chrfactions(models.Model):
     stationcount = models.IntegerField(null=True, db_column='stationCount', blank=True) # Field name made lowercase.
     stationsystemcount = models.IntegerField(null=True, db_column='stationSystemCount', blank=True) # Field name made lowercase.
     militiacorporationid = models.IntegerField(null=True, db_column='militiaCorporationID', blank=True) # Field name made lowercase.
-    iconid = models.IntegerField(null=True, db_column='iconID', blank=True) # Field name made lowercase.
+    icon = models.ForeignKey("eve.Icon", null=True, db_column='iconID', blank=True)
     class Meta:
         db_table = u'chrFactions'
 
@@ -65,7 +65,7 @@ class Chrraces(models.Model):
     raceid = models.IntegerField(primary_key=True, db_column='raceID') # Field name made lowercase.
     racename = models.CharField(max_length=300, db_column='raceName', blank=True) # Field name made lowercase.
     description = models.CharField(max_length=3000, blank=True)
-    iconid = models.IntegerField(null=True, db_column='iconID', blank=True) # Field name made lowercase.
+    icon = models.ForeignKey("eve.Icon", null=True, db_column='iconID', blank=True)
     shortdescription = models.CharField(max_length=1500, db_column='shortDescription', blank=True) # Field name made lowercase.
     class Meta:
         db_table = u'chrRaces'

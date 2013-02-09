@@ -54,7 +54,7 @@ class Crpnpccorporations(models.Model):
     stationcount = models.IntegerField(null=True, db_column='stationCount', blank=True) # Field name made lowercase.
     stationsystemcount = models.IntegerField(null=True, db_column='stationSystemCount', blank=True) # Field name made lowercase.
     description = models.CharField(max_length=12000, blank=True)
-    iconid = models.IntegerField(null=True, db_column='iconID', blank=True) # Field name made lowercase.
+    icon = models.ForeignKey("eve.Icon", null=True, db_column='iconID', blank=True)
     class Meta:
         db_table = u'crpNPCCorporations'
 
