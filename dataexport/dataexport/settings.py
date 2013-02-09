@@ -108,7 +108,7 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -120,7 +120,23 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-)
+]
+
+INSTALLED_APPS += [
+    'eve.agt',
+    'eve.chr',
+    'eve.crp',
+    'eve.crt',
+    'eve.dgm',
+    'eve.eve',
+    'eve.inv',
+    'eve.map',
+    'eve.planet',
+    'eve.ram',
+    'eve.sta',
+    'eve.trn',
+    'eve.war',
+]
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
