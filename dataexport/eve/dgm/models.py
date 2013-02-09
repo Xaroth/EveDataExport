@@ -54,10 +54,13 @@ class Effect(models.Model):
         db_table        = u'dgmEffects'
 
 class TypeAttribute(models.Model):
-    type                = models.ForeignKey("inv.Type", primary_key=True, db_column='typeID') # Field name made lowercase.
+    type                = models.ForeignKey("inv.Type", primary_key=True, db_column='typeID', related_name='attribute_set') # Field name made lowercase.
     attribute           = models.ForeignKey("dgm.AttributeType", primary_key=True, db_column='attributeID') # Field name made lowercase.
     valueint            = models.IntegerField(null=True, db_column='valueInt', blank=True) # Field name made lowercase.
     valuefloat          = models.FloatField(null=True, db_column='valueFloat', blank=True) # Field name made lowercase.
+
+    def __str__(self):
+        return "%s: %s"  % (self.attribute.name, self.value)
 
     @property
     def value(self):
@@ -67,7 +70,7 @@ class TypeAttribute(models.Model):
         db_table        = u'dgmTypeAttributes'
 
 class TypeEffect(models.Model):
-    type                = models.ForeignKey("inv.Type", primary_key=True, db_column='typeID') # Field name made lowercase.
+    type                = models.ForeignKey("inv.Type", primary_key=True, db_column='typeID', related_name='effect_set') # Field name made lowercase.
     effect              = models.ForeignKey("dgm.Effect", primary_key=True, db_column='effectID') # Field name made lowercase.
     isdefault           = models.NullBooleanField(null=True, db_column='isDefault', blank=True) # Field name made lowercase.
     class Meta:

@@ -1,7 +1,7 @@
 from django.db import models
 
 class BlueprintType(models.Model):
-    blueprint           = models.OneToOneField("inv.Type", primary_key=True, db_column='blueprintTypeID', parent_link = True)
+    type                = models.OneToOneField("inv.Type", primary_key=True, db_column='blueprintTypeID', related_name='blueprint', parent_link = True)
     parent              = models.OneToOneField("inv.Type", null=True, db_column='parentBlueprintTypeID', blank=True, related_name='+')
     product             = models.OneToOneField("inv.Type", null=True, db_column='productTypeID', blank=True, related_name='productblueprint')
     productiontime      = models.IntegerField(null=True, db_column='productionTime', blank=True)
@@ -17,6 +17,69 @@ class BlueprintType(models.Model):
 
     class Meta:
         db_table        = u'invBlueprintTypes'
+
+    def __str__(self):
+        return self.blueprint.name
+
+    def getBaseInventionChance(self):
+        """
+        Returns the base invention chance for this blueprint.
+
+        Requires blueprint to be for a T2 product.
+        check for base chance might be somewhat outdated, there might be a better way of checking.
+        """
+        chance = getattr(self, '_getBaseInventionChance', None)
+        if chance:
+            return chance
+        chance = 0.40
+        p = self.product
+        if p.attributes.techLevel == 1:
+            return 0.00
+        if p.group.category.name == "Ship":
+            group = p.group.name
+            if group in ['Frigate', 'Freighter', 'Destroyer'] or p.name == 'Skiff':
+                chance = 0.30
+            elif group in ['Cruiser', 'Industrial'] or p.name == 'Mackinaw':
+                chance = 0.25
+            elif group in ['Battlecruiser', 'Battleship'] or p.name == 'Hulk':
+                chance = 0.2
+            else:
+                chance = 0
+        self._getBaseInventionChance = chance
+        return chance
+
+    def calculateInventionChance(self, encryption_skill = 5, primary_dc_skill = 5, secondary_dc_skill = 5, meta_item = None, decryptor_mod = 1.0):
+        meta_level = 0
+        if not meta_item == None:
+            meta_level = meta_item.attributedict.get('metaLevel', 0)
+        base = self.getBaseInventionChance()
+        return min(1, 
+                     base * (1 + (encryption_skill * 0.01)) 
+                          * (1 + (0.02* (primary_dc_skill + secondary_dc_skill)) 
+                               * (5 / (5 - meta_level))) 
+                          * decryptor_modifier )
+
+    def applyAdjustedResearchTime(self, base, skill = 0, slot = 1.0, implant = 1.0):
+        return base * ( 1 - ( 0.05 * float(skill))) * float(slot) * float(implant)
+
+    def getAdjustedCopyTime(self, skill = 0, slot = 1.0, implant = 1.0):
+        return self.applyAdjustedResearchTime(self.researchcopytime, skill, slot, implant)
+
+    def getAdjustedMaterialTime(self, skill = 0, slot = 1.0, implant = 1.0):
+        return self.applyAdjustedResearchTime(self.researchmaterialtime, skill, slot, implant)
+
+    def getAdjustedProductivityTime(self, skill = 0, slot = 1.0, implant = 1.0):
+        return self.applyAdjustedResearchTime(self.researchproductivitytime, skill, slot, implant)
+
+    def getAdjustedProductionTime(self, industry = 5, slot = 1.0, implant = 1.0, pe_level = 0):
+        ptm = ( 1 - (0.04 * float(industry))) * float(implant) * float(slot)
+        pemod = 1
+        if pe_level >= 0:
+            pemod = (float(pe_level) / (1+float(pe_level)))
+        else:
+            pemod = (float(pe_level) - 1)
+        return float(self.productiontime) * (1 - (float(self.productivitymodifier) / float(self.productiontime) ) * (pemod)) * ptm
+
 
 class Category(models.Model):
     id                  = models.IntegerField(primary_key=True, db_column='categoryID') # Field name made lowercase.
@@ -148,7 +211,7 @@ class TypeReaction(models.Model):
 class Type(models.Model):
     id                  = models.AutoField(primary_key=True, db_column='typeID') # Field name made lowercase.
     group               = models.ForeignKey("inv.Group", null=True, db_column='groupID', blank=True) # Field name made lowercase.
-    typename            = models.CharField(max_length=300, db_column='typeName', blank=True) # Field name made lowercase.
+    name                = models.CharField(max_length=300, db_column='typeName', blank=True) # Field name made lowercase.
     description         = models.CharField(max_length=9000, blank=True)
     mass                = models.FloatField(null=True, blank=True)
     volume              = models.FloatField(null=True, blank=True)
@@ -159,6 +222,26 @@ class Type(models.Model):
     published           = models.IntegerField(null=True, blank=True)
     marketgroup         = models.ForeignKey("inv.MarketGroup", null=True, db_column='marketGroupID', blank=True) # Field name made lowercase.
     chanceofduplicating = models.FloatField(null=True, db_column='chanceOfDuplicating', blank=True) # Field name made lowercase.
+
+    def __str__(self):
+        return self.name
+
+    _attributes      = None
+    _attributedict   = None
+    @property
+    def attributes(self):
+        if self._attributes == None:
+            self._attributes = type('attributes', (object,), self.attributedict) 
+        return self._attributes
+
+    @property
+    def attributedict(self):
+        if self._attributedict == None:
+            attribs = self.attribute_set.select_related('attribute').all()
+            self._attributedict = dict([(x.attribute.name, x.value) for x in attribs])
+        return self._attributedict
+
+
     class Meta:
         db_table        = u'invTypes'
 
