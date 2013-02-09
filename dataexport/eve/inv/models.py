@@ -80,6 +80,18 @@ class BlueprintType(models.Model):
             pemod = (float(pe_level) - 1)
         return float(self.productiontime) * (1 - (float(self.productivitymodifier) / float(self.productiontime) ) * (pemod)) * ptm
 
+    def getBaseMaterials(self):
+        bom = getattr(self, '_getBaseMaterials', None)
+        if not bom:
+            bom = self._getBaseMaterials = dict(self.product.type_materials.exclude(material__group__category__name = "Skill").values_list('material', 'quantity'))
+        return bom
+
+    def getRamMaterials(self, activity="Manufacturing"):
+        bom = getattr(self, '_getRamMaterials_%s' % activity, None)
+        if not bom:            
+            bom = dict([(x.requiredtype_id, x) for x in self.type.typerequirement_set.filter(activity__name=activity).exclude(requiredtype__group__category__name = "Skill")])
+            setattr(self, '_getRamMaterials_%s' % activity, bom)
+        return bom
 
 class Category(models.Model):
     id                  = models.IntegerField(primary_key=True, db_column='categoryID') # Field name made lowercase.
@@ -194,9 +206,12 @@ class Position(models.Model):
         db_table        = u'invPositions'
 
 class TypeMaterial(models.Model):
-    type                = models.ForeignKey("inv.Type", primary_key=True, db_column='typeID', related_name='+') # Field name made lowercase.
+    type                = models.ForeignKey("inv.Type", primary_key=True, db_column='typeID', related_name='type_materials') # Field name made lowercase.
     material            = models.ForeignKey("inv.Type", primary_key=True, db_column='materialTypeID', related_name='type_material_materials') # Field name made lowercase.
     quantity            = models.IntegerField()
+
+    def __str__(self):
+        return "%s * %s"  % (self.material.name, self.quantity)
     class Meta:
         db_table        = u'invTypeMaterials'
 
