@@ -1,9 +1,9 @@
 from django.db import models
 
 class Translationtables(models.Model):
-    sourcetable = models.CharField(max_length=600, primary_key=True, db_column='sourceTable') # Field name made lowercase.
+    sourcetable = models.CharField(max_length=255, primary_key=True, db_column='sourceTable') # Field name made lowercase.
     destinationtable = models.CharField(max_length=600, db_column='destinationTable', blank=True) # Field name made lowercase.
-    translatedkey = models.CharField(max_length=600, primary_key=True, db_column='translatedKey') # Field name made lowercase.
+    translatedkey = models.CharField(max_length=255, primary_key=True, db_column='translatedKey') # Field name made lowercase.
     tcgroupid = models.IntegerField(null=True, db_column='tcGroupID', blank=True) # Field name made lowercase.
     tcid = models.IntegerField(null=True, db_column='tcID', blank=True) # Field name made lowercase.
     class Meta:
