@@ -33,7 +33,7 @@ class BlueprintType(models.Model):
             return chance
         chance = 0.40
         p = self.product
-        if p.attributes.techLevel == 1:
+        if not p.attributes.techLevel == 1:
             return 0.00
         if p.group.category.name == "Ship":
             group = p.group.name
