@@ -63,7 +63,7 @@ class BlueprintType(models.Model, LoggableObject):
                      base * (1 + (encryption_skill * 0.01)) 
                           * (1 + (0.02* (primary_dc_skill + secondary_dc_skill)) 
                                * (5 / (5 - meta_level))) 
-                          * decryptor_modifier )
+                          * decryptor_mod )
 
     def applyAdjustedResearchTime(self, base, skill = 0, slot = 1.0, implant = 1.0):
         return base * ( 1 - ( 0.05 * float(skill))) * float(slot) * float(implant)
