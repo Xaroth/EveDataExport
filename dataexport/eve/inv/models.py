@@ -105,17 +105,11 @@ class BlueprintType(models.Model, LoggableObject):
         return bom_item
 
     def applyCost(self, item, bom_item):
-        buy, sell = item.getPrice()
-        try:
-            buy = float(buy)
-            sell = float(sell)
-        except ValueError:
-            self.log.error("Unable to parse buy/sell data")
-            return None
-        bom_item['buy'] = buy
-        bom_item['sell'] = sell
-        bom_item['total_buy'] = bom_item['total'] * buy
-        bom_item['total_sell'] = bom_item['total'] * sell
+        price = item.getPrice()
+        bom_item['buy'] = price['buy']
+        bom_item['sell'] = price['sell']
+        bom_item['total_buy'] = bom_item['total'] * price['buy']
+        bom_item['total_sell'] = bom_item['total'] * price['sell']
         return bom_item
 
     def getWasteAmount(self, quantity, me_level):
