@@ -54,7 +54,7 @@ class BlueprintType(models.Model, LoggableObject):
         self._getBaseInventionChance = chance
         return chance
 
-    def calculateInventionChance(self, encryption_skill = 5, primary_dc_skill = 5, secondary_dc_skill = 5, meta_item = None, decryptor_mod = 1.0):
+    def getInventionChance(self, encryption_skill = 5, primary_dc_skill = 5, secondary_dc_skill = 5, meta_item = None, decryptor_mod = 1.0):
         meta_level = 0
         if not meta_item == None:
             meta_level = meta_item.attributedict.get('metaLevel', 0)
