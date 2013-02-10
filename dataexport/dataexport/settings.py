@@ -195,5 +195,5 @@ LOGGING = {
         },
     }
 }
-app_loggers = dict([(x, {'handlers': ['console',], 'level': 'DEBUG', 'propagate': True}) for x in INSTALLED_APPS if not x.startswith('django')])
+app_loggers = dict([(x, {'handlers': ['console',], 'level': 'WARNING', 'propagate': True}) for x in INSTALLED_APPS if not x.startswith('django')])
 LOGGING['loggers'].update(app_loggers)
