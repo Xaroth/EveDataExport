@@ -330,12 +330,14 @@ class Type(models.Model):
 
         dom = minidom.parseString(reply)
         item = dom.getElementsByTagName("buy")
-        buy = item[0].getElementsByTagName("max")[0].childNodes[0].nodeValue
+        buy = float(item[0].getElementsByTagName("percentile")[0].childNodes[0].nodeValue)
         item = dom.getElementsByTagName("sell")
-        sell = item[0].getElementsByTagName("min")[0].childNodes[0].nodeValue
+        sell = float(item[0].getElementsByTagName("percentile")[0].childNodes[0].nodeValue)
 
-        cache.set("invTypes.price." + str(self.id), (buy, sell), 3600)
-        return (buy, sell)
+        ret = { "buy": buy, "sell": sell }
+
+        cache.set("invTypes.price." + str(self.id), ret, 3600)
+        return ret
 
 
 class UniqueName(models.Model):
