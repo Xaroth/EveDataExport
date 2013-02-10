@@ -65,6 +65,9 @@ class BlueprintType(models.Model, LoggableObject):
                                * (5 / (5 - meta_level))) 
                           * decryptor_mod )
 
+    def getInventionBlueprints(self):
+        return [x.type.productblueprint for x in MetaType.objects.filter(parent = self.product, group__id = 2)]
+
     def applyAdjustedResearchTime(self, base, skill = 0, slot = 1.0, implant = 1.0):
         return base * ( 1 - ( 0.05 * float(skill))) * float(slot) * float(implant)
 
