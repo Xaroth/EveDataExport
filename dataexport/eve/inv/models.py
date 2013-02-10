@@ -1,4 +1,8 @@
+from xml.dom import minidom
+import httplib
+
 from django.db import models
+from django.core.cache import cache
 
 class BlueprintType(models.Model):
     type                = models.OneToOneField("inv.Type", primary_key=True, db_column='blueprintTypeID', related_name='blueprint', parent_link = True)
@@ -259,6 +263,26 @@ class Type(models.Model):
 
     class Meta:
         db_table        = u'invTypes'
+
+    def getPrice(self):
+        res = cache.get("invTypes.price." + str(self.id))
+        if res != None: return res
+
+        conn = httplib.HTTPConnection("api.eve-central.com")
+        conn.request("GET", "/api/marketstat?regionlimit=10000002&typeid=" + str(self.id))
+        res = conn.getresponse()
+        reply = res.read()
+        conn.close()
+
+        dom = minidom.parseString(reply)
+        item = dom.getElementsByTagName("buy")
+        buy = item[0].getElementsByTagName("max")[0].childNodes[0].nodeValue
+        item = dom.getElementsByTagName("sell")
+        sell = item[0].getElementsByTagName("min")[0].childNodes[0].nodeValue
+
+        cache.set("invTypes.price." + str(self.id), (buy, sell), 3600)
+        return (buy, sell)
+
 
 class UniqueName(models.Model):
     itemid              = models.IntegerField(primary_key=True, db_column='itemID') # Field name made lowercase.
