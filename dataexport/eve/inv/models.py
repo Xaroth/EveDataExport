@@ -66,7 +66,16 @@ class BlueprintType(models.Model, LoggableObject):
                           * decryptor_mod )
 
     def getInventionBlueprints(self):
-        return [x.type.productblueprint for x in MetaType.objects.filter(parent = self.product, group__id = 2)]
+        blueprints = []
+        if self.product.attributes.techLevel != 1: return blueprints
+
+        for t2 in MetaType.objects.filter(parent = self.product, group__id = 2):
+            try:
+                blueprints += [ t2.type.productblueprint, ]
+            except:
+                pass
+
+        return blueprints
 
     def applyAdjustedResearchTime(self, base, skill = 0, slot = 1.0, implant = 1.0):
         return base * ( 1 - ( 0.05 * float(skill))) * float(slot) * float(implant)
