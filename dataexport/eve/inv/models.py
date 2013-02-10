@@ -334,7 +334,7 @@ class Type(models.Model):
         if res != None: return res
 
         conn = httplib.HTTPConnection("api.eve-central.com")
-        conn.request("GET", "/api/marketstat?regionlimit=10000002&typeid=" + str(self.id))
+        conn.request("GET", "/api/marketstat?usesystem=30000142&typeid=" + str(self.id))
         res = conn.getresponse()
         reply = res.read()
         conn.close()
