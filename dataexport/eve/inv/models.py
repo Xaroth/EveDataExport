@@ -139,7 +139,10 @@ class BlueprintType(models.Model, LoggableObject):
         ram = self.getRamMaterials(activity="Invention")
         bom = dict([(x, {'total': y.quantity, 'damage': y.damageperjob}) for x,y in ram.items()])
         items = dict( [(x.pk, x) for x in Type.objects.filter(id__in = bom.keys()) ] )
-        bom = dict( [ (items.get(x, None), self.applyCost(items.get(x, None), y)) for x,y in bom.items()])
+        if include_cost:
+            bom = dict( [ (items.get(x, None), self.applyCost(items.get(x, None), y)) for x,y in bom.items() ] )
+        else:
+            bom = dict( [ (items.get(x, None), y) for x,y in bom.items() ] )
         return bom
 
     def getBillOfMaterials(self, me_level = 0, include_cost = False):
