@@ -67,7 +67,11 @@ class BlueprintType(models.Model, LoggableObject):
 
     def getInventionBlueprints(self):
         blueprints = []
-        if self.product.attributes.techLevel != 1: return blueprints
+        try:
+            if self.product.attributes.techLevel != 1: return blueprints
+            if self.product.attributes.metaLevel != 0: return blueprints
+        except:
+            return blueprints
 
         for t2 in MetaType.objects.filter(parent = self.product, group__id = 2).select_related('type'):
             try:
