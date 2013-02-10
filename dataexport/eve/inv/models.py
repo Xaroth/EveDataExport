@@ -63,7 +63,7 @@ class BlueprintType(models.Model, LoggableObject):
                      base * (1 + (encryption_skill * 0.01)) 
                           * (1 + (0.02* (primary_dc_skill + secondary_dc_skill)) 
                                * (5 / (5 - meta_level))) 
-                          * decryptor_modifier )
+                          * decryptor_mod )
 
     def applyAdjustedResearchTime(self, base, skill = 0, slot = 1.0, implant = 1.0):
         return base * ( 1 - ( 0.05 * float(skill))) * float(slot) * float(implant)
@@ -104,6 +104,20 @@ class BlueprintType(models.Model, LoggableObject):
         bom_item['total'] = bom_item['base'] + bom_item['ram'] + bom_item['waste']
         return bom_item
 
+    def applyCost(self, item, bom_item):
+        buy, sell = item.getPrice()
+        try:
+            buy = float(buy)
+            sell = float(sell)
+        except ValueError:
+            self.log.error("Unable to parse buy/sell data")
+            return None
+        bom_item['buy'] = buy
+        bom_item['sell'] = sell
+        bom_item['total_buy'] = bom_item['total'] * buy
+        bom_item['total_sell'] = bom_item['total'] * sell
+        return bom_item
+
     def getWasteAmount(self, quantity, me_level):
         waste = round(self.wastefactor, 2)
         me = round(me_level, 2)
@@ -115,7 +129,7 @@ class BlueprintType(models.Model, LoggableObject):
         else:
             return int(round(q * (waste / 100) * (1 - me), 0))
 
-    def getBillOfMaterials(self, me_level = 0):
+    def getBillOfMaterials(self, me_level = 0, include_cost = False):
         self.log.debug("Getting Bill of Materials for %s" % str(self))
         ram = self.getRamMaterials()
         base = self.getBaseMaterials()
@@ -144,7 +158,10 @@ class BlueprintType(models.Model, LoggableObject):
                 except KeyError:
                     pass
         items = dict( [(x.pk, x) for x in Type.objects.filter(id__in = bom.keys()) ] )
-        bom = dict( [ (items.get(x, None), self.applyWasteQuantity(y, me_level)) for x,y in bom.items() if y['ram'] + y['base'] > 0 ] )
+        calc = lambda x,y: self.applyWasteQuantity(y, me_level)
+        if include_cost:
+            calc = lambda x,y: self.applyCost(x, self.applyWasteQuantity(y, me_level))
+        bom = dict( [ (items.get(x, None), calc(items.get(x, None),y)) for x,y in bom.items() if y['ram'] + y['base'] > 0 ] )
 
         return bom
 
