@@ -128,7 +128,7 @@ class BlueprintType(models.Model, LoggableObject):
 
         for item, data in ram.items():
             self.log.debug("ItemID: %s :: %s @ %s%s" % (item, data.quantity, data.damageperjob, ", recycles" if data.recycle else ""))
-            bom[item]['extra'] = data.quantity
+            bom[item]['ram'] = data.quantity
             bom[item]['damage'] = data.damageperjob
             bom[item]['recycle'] = data.recycle == True
             if data.recycle:
@@ -139,6 +139,7 @@ class BlueprintType(models.Model, LoggableObject):
             exclude_bom = item.getBaseMaterials()
             for item, quantity in exclude_bom.items():
                 try:
+                    print "Exluding ItemID: %s :: %s"  % (item, quantity)
                     bom[item]['base'] -= quantity
                 except KeyError:
                     pass
