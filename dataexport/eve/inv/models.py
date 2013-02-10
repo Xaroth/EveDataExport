@@ -69,7 +69,7 @@ class BlueprintType(models.Model, LoggableObject):
         blueprints = []
         if self.product.attributes.techLevel != 1: return blueprints
 
-        for t2 in MetaType.objects.filter(parent = self.product, group__id = 2):
+        for t2 in MetaType.objects.filter(parent = self.product, group__id = 2).select_related('type'):
             try:
                 blueprints += [ t2.type.productblueprint, ]
             except:
@@ -134,6 +134,13 @@ class BlueprintType(models.Model, LoggableObject):
             return int(round(q * (waste / 100) * ( 1 / (me + 1)), 0))
         else:
             return int(round(q * (waste / 100) * (1 - me), 0))
+
+    def getInventionMaterials(self, include_cost = False):
+        ram = self.getRamMaterials(activity="Invention")
+        bom = dict([(x, {'total': y.quantity, 'damage': y.damageperjob}) for x,y in ram.items()])
+        items = dict( [(x.pk, x) for x in Type.objects.filter(id__in = bom.keys()) ] )
+        bom = dict( [ (items.get(x, None), self.applyCost(items.get(x, None), y)) for x,y in bom.items()])
+        return bom
 
     def getBillOfMaterials(self, me_level = 0, include_cost = False):
         self.log.debug("Getting Bill of Materials for %s" % str(self))
