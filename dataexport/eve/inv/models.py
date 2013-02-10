@@ -139,7 +139,7 @@ class BlueprintType(models.Model, LoggableObject):
             exclude_bom = item.getBaseMaterials()
             for item, quantity in exclude_bom.items():
                 try:
-                    print "Exluding ItemID: %s :: %s"  % (item, quantity)
+                    self.log.debug("Exluding ItemID: %s :: %s"  % (item, quantity))
                     bom[item]['base'] -= quantity
                 except KeyError:
                     pass
