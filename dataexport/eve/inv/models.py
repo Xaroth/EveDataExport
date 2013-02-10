@@ -4,7 +4,9 @@ import httplib
 from django.db import models
 from django.core.cache import cache
 
-class BlueprintType(models.Model):
+from eve.tools import LoggableObject
+
+class BlueprintType(models.Model, LoggableObject):
     type                = models.OneToOneField("inv.Type", primary_key=True, db_column='blueprintTypeID', related_name='blueprint', parent_link = True)
     parent              = models.OneToOneField("inv.Type", null=True, db_column='parentBlueprintTypeID', blank=True, related_name='+')
     product             = models.OneToOneField("inv.Type", null=True, db_column='productTypeID', blank=True, related_name='productblueprint')
@@ -23,7 +25,7 @@ class BlueprintType(models.Model):
         db_table        = u'invBlueprintTypes'
 
     def __str__(self):
-        return self.blueprint.name
+        return self.type.name
 
     def getBaseInventionChance(self):
         """
@@ -96,6 +98,57 @@ class BlueprintType(models.Model):
             bom = dict([(x.requiredtype_id, x) for x in self.type.typerequirement_set.filter(activity__name=activity).exclude(requiredtype__group__category__name = "Skill")])
             setattr(self, '_getRamMaterials_%s' % activity, bom)
         return bom
+
+    def applyWasteQuantity(self, bom_item, me_level):
+        bom_item['waste'] = self.getWasteAmount(bom_item['base'], me_level)
+        bom_item['total'] = bom_item['base'] + bom_item['ram'] + bom_item['waste']
+        return bom_item
+
+    def getWasteAmount(self, quantity, me_level):
+        waste = round(self.wastefactor, 2)
+        me = round(me_level, 2)
+        if quantity == 0:
+            return 0
+        q = round(float(quantity), 2)
+        if me_level >= 0:
+            return int(round(q * (waste / 100) * ( 1 / (me + 1)), 0))
+        else:
+            return int(round(q * (waste / 100) * (1 - me), 0))
+
+    def getBillOfMaterials(self, me_level = 0):
+        self.log.debug("Getting Bill of Materials for %s" % str(self))
+        ram = self.getRamMaterials()
+        base = self.getBaseMaterials()
+        exclude = []
+        itemlist = list(set(ram.keys() + base.keys()))
+        bom = dict([(x, {'damage': 1.0, 'waste': 0, 'recycle': True, 'base': 0, 'ram': 0, 'waste': 0, 'total': 0}) for x in itemlist])
+        for item, quantity in base.items():
+            self.log.debug("ItemID: %s :: %s" % (item, quantity))
+            bom[item]['base'] = quantity
+
+        for item, data in ram.items():
+            self.log.debug("ItemID: %s :: %s @ %s%s" % (item, data.quantity, data.damageperjob, ", recycles" if data.recycle else ""))
+            bom[item]['extra'] = data.quantity
+            bom[item]['damage'] = data.damageperjob
+            bom[item]['recycle'] = data.recycle == True
+            if data.recycle:
+                exclude.append(item)
+        exclude = BlueprintType.objects.filter(product__in = exclude)
+        for item in exclude:
+            self.log.debug("Excluding: %s" % item)
+            exclude_bom = item.getBaseMaterials()
+            for item, quantity in exclude_bom.items():
+                try:
+                    bom[item]['base'] -= quantity
+                except KeyError:
+                    pass
+        items = dict( [(x.pk, x) for x in Type.objects.filter(id__in = bom.keys()) ] )
+        bom = dict( [ (items.get(x, None), self.applyWasteQuantity(y, me_level)) for x,y in bom.items() if y['ram'] + y['base'] > 0 ] )
+
+        return bom
+
+
+
 
 class Category(models.Model):
     id                  = models.IntegerField(primary_key=True, db_column='categoryID') # Field name made lowercase.
